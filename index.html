@@ -6,7 +6,13 @@
 <title>Tactics 2 Talent — Command</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Familjen+Grotesk:wght@600;700&family=Lora:ital,wght@0,400;1,400&display=swap" rel="stylesheet">
-<script src="https://cdn.jsdelivr.net/npm/@clerk/clerk-js@latest/dist/clerk.browser.js"></script>
+<script
+  async
+  crossorigin="anonymous"
+  data-clerk-publishable-key="pk_test_dW5iaWFzZWQtYmx1ZWpheS0zMS5jbGVyay5hY2NvdW50cy5kZXYk"
+  src="https://cdn.jsdelivr.net/npm/@clerk/clerk-js@latest/dist/clerk.browser.js"
+  type="text/javascript"
+></script>
 <style>
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
@@ -722,11 +728,9 @@ const PROMO_KEY = 't2t_admin_promo_v1';
 let clerk;
 
 // ── Boot Clerk ────────────────────────────────────────────────────────
-window.addEventListener('load', async () => {
+async function bootClerk() {
   clerk = window.Clerk;
-  await clerk.load({
-    publishableKey: 'pk_test_dW5iaWFzZWQtYmx1ZWpheS0zMS5jbGVyay5hY2NvdW50cy5kZXYk'
-  });
+  await clerk.load();
 
   if (!clerk.user) {
     // Not signed in — show Clerk's sign-in UI
@@ -751,7 +755,14 @@ window.addEventListener('load', async () => {
   // Admin confirmed — show chooser
   document.getElementById('loading-screen').style.display = 'none';
   document.getElementById('chooser').style.display = 'flex';
-});
+}
+
+// Wait for Clerk script to be ready
+if (window.Clerk) {
+  bootClerk();
+} else {
+  document.addEventListener("__clerk_loaded", bootClerk);
+}
 
 function enterAdmin() {
   document.getElementById('chooser').style.display = 'none';
