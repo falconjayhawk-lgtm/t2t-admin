@@ -757,12 +757,15 @@ async function bootClerk() {
   document.getElementById('chooser').style.display = 'flex';
 }
 
-// Wait for Clerk script to be ready
-if (window.Clerk) {
-  bootClerk();
-} else {
-  document.addEventListener("__clerk_loaded", bootClerk);
+// Wait for Clerk to be available — poll every 100ms
+function waitForClerk() {
+  if (window.Clerk) {
+    bootClerk();
+  } else {
+    setTimeout(waitForClerk, 100);
+  }
 }
+waitForClerk();
 
 function enterAdmin() {
   document.getElementById('chooser').style.display = 'none';
