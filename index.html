@@ -249,12 +249,15 @@ select option { background: white; }
 
 <div id="toast"></div>
 
-<script src="https://cdn.jsdelivr.net/npm/@clerk/clerk-js@latest/dist/clerk.browser.js"></script>
+<script async crossorigin="anonymous"
+  data-clerk-publishable-key="pk_test_dW5iaWFzZWQtYmx1ZWpheS0zMS5jbGVyay5hY2NvdW50cy5kZXYk"
+  src="https://unbiased-bluejay-31.clerk.accounts.dev/npm/@clerk/clerk-js@latest/dist/clerk.browser.js"
+  type="text/javascript">
+</script>
 <script>
-const WORKER     = 'https://vetcareer-api.falconjayhawk.workers.dev';
-const ADMIN_ID   = 'user_3A2fN4qc1ffqZSSNbGf9b9d3HYO';
-const CLERK_KEY  = 'pk_test_dW5iaWFzZWQtYmx1ZWpheS0zMS5jbGVyay5hY2NvdW50cy5kZXYk';
-const PROMO_KEY  = 't2t_admin_promo_v1';
+const WORKER    = 'https://vetcareer-api.falconjayhawk.workers.dev';
+const ADMIN_ID  = 'user_3A2fN4qc1ffqZSSNbGf9b9d3HYO';
+const PROMO_KEY = 't2t_admin_promo_v1';
 let clerk;
 
 // ── Screen helper ─────────────────────────────────────────────────────
@@ -271,13 +274,22 @@ function setStatus(msg) {
 
 // ── Boot ──────────────────────────────────────────────────────────────
 async function boot() {
-  setStatus('Loading auth...');
+  setStatus('Waiting for auth...');
+  // Wait for Clerk global to be available (loaded by the async script tag)
+  await new Promise(resolve => {
+    if (window.Clerk) { resolve(); return; }
+    const interval = setInterval(() => {
+      if (window.Clerk) { clearInterval(interval); resolve(); }
+    }, 50);
+  });
+
+  setStatus('Initializing...');
+  clerk = window.Clerk;
   try {
-    clerk = new window.Clerk(CLERK_KEY);
     await clerk.load();
   } catch(e) {
     setStatus('Auth failed: ' + e.message);
-    console.error('Clerk boot error:', e);
+    console.error('Clerk load error:', e);
     return;
   }
 
